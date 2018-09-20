@@ -6,8 +6,105 @@
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
+    //function to handle our xhr response
+    const handleResponse = (xhr) => {
+      
+      const type = xhr.getResponseHeader('content-type');
+        
+      //grab the content section
+      const content = document.querySelector("#content");
+      
+      const h1 = document.createElement('h1');
+      const p = document.createElement('p');
+        
+        //if the response was in json
+      if(type === 'application/json') {
+		//parse the response text into a JSON object
+        const obj = JSON.parse(xhr.response);
+		//add the json fields to our html elements
+        h1.textContent = `ID: ${obj.id}`;
+        p.textContent = `Message: ${obj.message}`; 
+      } 
+      //if response was in xml
+      else if (type === 'text/xml') {
+		//grab the name tag and age tag from our responseXML
+		//This will only work if the responding XML is completely valid.
+		//Otherwise the responseXML field will be null
+        const id = xhr.responseXML.querySelector('id').textContent;
+        const message = xhr.responseXML.querySelector('message').textContent;
+		
+		//add the xml fields to our html elements
+        h1.textContent = `ID: ${id}`;
+        p.textContent = `Message: ${message}`; 
+      }
+      
+	  //append the h1 and p to the content.
+      content.appendChild(h1);
+      content.appendChild(p);
+      
+      //check the xhr status code and handle accordingly
+      switch(xhr.status) {
+        case 200: //success
+          content.innerHTML = `<b>Success</b>`;
+          break;
+        case 400: //bad request 
+          content.innerHTML = `<b>Bad Request</b>`;
+          break;
+        case 401: //Unauthorized
+          content.innerHTML = `<b>Unauthorized</b>`;
+          break;
+        case 403: //forbidden 
+          content.innerHTML = `<b>Forbidden</b>`;
+          break;
+        case 500: //Internal Server Error 
+          content.innerHTML = `<b>Internal Server Error</b>`;
+          break;
+        case 501: //Not Implemented 
+          content.innerHTML = `<b>Not Implemented</b>`;
+          break;
+        case 404: //not found (requested resource does not exist)
+          content.innerHTML = `<b>Resource Not Found</b>`;
+          break;
+        default: //default other errors we are not handling in this example
+          content.innerHTML = `Error code not implemented by client.`;
+          break;
+      }
+    };
+    
+    //function to send ajax
+    const sendAjax = (url, acceptedType) => {
+      //create a new xhr (ajax) request. 
+      //Remember that these are ASYNCHRONOUS
+      const xhr = new XMLHttpRequest();
+      //set the xhr to a GET request to a certain URL
+      xhr.open('GET', url);
+      //Set the accept headers to the desired response mime type
+      //Server does NOT have to support this. It is a gentle request.
+      xhr.setRequestHeader ("Accept", acceptedType);
+      //When the xhr loads, call handleResponse and pass the xhr object
+      xhr.onload = () => handleResponse(xhr);
+      //send our ajax request to the server
+      xhr.send();
+    };
 
-  </script>
+    //initialization function
+    const init = () => {
+      const sendButton = document.querySelector("#send");
+      const successButton = document.querySelector("#success");
+        
+        
+      //functions to call sendAjax for us with the correct parameters
+      const send = () => sendAjax('/forbidden', 'application/json');
+      const success = () => sendAjax('/success', 'application/xml');
+        
+      //attach the correct functions to the correct events
+      sendButton.addEventListener('click', send);
+      successButton.addEventListener('click', success);
+    };
+
+    window.onload = init;
+
+    </script>
 </head>
 <body>
   <section id="top">
@@ -26,6 +123,7 @@
       <option value="text/xml">XML</option>
     </select>
     <button id="send">Send</button>
+    <button id="success">Success Button</button>
   </section>
   <section id="content">
   </section>
