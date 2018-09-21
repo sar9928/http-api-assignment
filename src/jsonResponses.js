@@ -5,8 +5,7 @@ const respond = (request, response, status, content, type) => {
   //stringify the object (so it doesn't use references/pointers/etc)
   //but is instead a flat string object.
   //Then write it to the response.
-  console.log(type);
-  if (type == 'application/json') {
+  if (type === 'application/json') {
     response.write(JSON.stringify(content));
   } else {
       response.write(content);
