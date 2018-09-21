@@ -13,5 +13,10 @@
     "test": "echo \"Tests Complete\""
   },
   "author": "Stoney Reed",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^5.5.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-plugin-import": "^2.14.0"
+  }
 }
