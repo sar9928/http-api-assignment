@@ -7,22 +7,23 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
     //function to handle our xhr response
-    const handleResponse = (xhr) => {
-      
+    const handleResponse = (xhr) => { 
+      console.log(xhr);
       const type = xhr.getResponseHeader('content-type');
         
       //grab the content section
       const content = document.querySelector("#content");
-      
-      const h1 = document.createElement('h1');
+      //const h1 = document.createElement('h1');
       const p = document.createElement('p');
         
         //if the response was in json
       if(type === 'application/json') {
 		//parse the response text into a JSON object
         const obj = JSON.parse(xhr.response);
+        console.log(obj);  
+          
 		//add the json fields to our html elements
-        h1.textContent = `ID: ${obj.id}`;
+        //h1.textContent = `ID: ${obj.id}`;
         p.textContent = `Message: ${obj.message}`; 
       } 
       //if response was in xml
@@ -30,18 +31,20 @@
 		//grab the name tag and age tag from our responseXML
 		//This will only work if the responding XML is completely valid.
 		//Otherwise the responseXML field will be null
-        const id = xhr.responseXML.querySelector('id').textContent;
+        const xmlId = xhr.responseXML.querySelector('id')
+        var id = null;
+        
+        console.log(xhr.responseXML);  
+        if (xmlId) {
+            id = xmlId.textContent; 
+        }
         const message = xhr.responseXML.querySelector('message').textContent;
 		
 		//add the xml fields to our html elements
-        h1.textContent = `ID: ${id}`;
+        //h1.textContent = `ID: ${id}`;
         p.textContent = `Message: ${message}`; 
       }
-      
-	  //append the h1 and p to the content.
-      content.appendChild(h1);
-      content.appendChild(p);
-      
+ 
       //check the xhr status code and handle accordingly
       switch(xhr.status) {
         case 200: //success
@@ -69,10 +72,15 @@
           content.innerHTML = `Error code not implemented by client.`;
           break;
       }
+        //append the h1 and p to the content.
+      //content.appendChild(h1);
+      content.appendChild(p);
+      
     };
     
     //function to send ajax
     const sendAjax = (url, acceptedType) => {
+        console.log(acceptedType);
       //create a new xhr (ajax) request. 
       //Remember that these are ASYNCHRONOUS
       const xhr = new XMLHttpRequest();
@@ -90,16 +98,33 @@
     //initialization function
     const init = () => {
       const sendButton = document.querySelector("#send");
-      const successButton = document.querySelector("#success");
-        
-        
+      
       //functions to call sendAjax for us with the correct parameters
-      const send = () => sendAjax('/forbidden', 'application/json');
+      const send = () => {
+          // if first dropdown is forbidden, then:
+          const firstDropDownValue = document.getElementById("page").value;
+          
+          // if first dropdown is success, then
+          //sendAjax('/success', typeToUse);
+          
+          var typeToUse = '';
+      var secondDropdown = document.getElementById("type");
+      var secondDropdownText = secondDropdown.options[secondDropdown.selectedIndex].text;
+          
+          if (secondDropdownText === 'XML') {
+          typeToUse = 'text/xml';
+        } 
+        else {
+          typeToUse = 'application/json';
+        }
+                    sendAjax(firstDropDownValue, typeToUse);
+
+      }
+      
       const success = () => sendAjax('/success', 'application/xml');
         
       //attach the correct functions to the correct events
       sendButton.addEventListener('click', send);
-      successButton.addEventListener('click', success);
     };
 
     window.onload = init;
