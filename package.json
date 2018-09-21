@@ -2,13 +2,14 @@
   "name": "http-api-assignment-master",
   "version": "1.0.0",
   "engines": {
-    "node": "8.6.0",
+    "node": "8.10.0",
     "npm": "6.4.1"
   },
   "description": "First API creating hw",
   "main": "node ./src/server.js",
   "scripts": {
     "start": "node ./src/server.js",
+    "pretest": "eslint ./src --fix",
     "test": "echo \"Tests Complete\""
   },
   "author": "Stoney Reed",
